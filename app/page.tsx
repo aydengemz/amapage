@@ -104,7 +104,7 @@ const MainContent = () => {
           whileHover={{ scale: 1.05 }} 
           className="cursor-pointer flex justify-center"
         >
-          <img src="/amaz.png" alt="Cash Rewards" className="w-4/5 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300" />
+          <img src="/$750.png" alt="Cash Rewards" className="w-4/5 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300" />
         </motion.div>
 
         <div className="flex items-center justify-center gap-2 bg-[#FF9900] text-white py-3 px-4 rounded-lg shadow-md">
