@@ -86,7 +86,7 @@ const MainContent = () => {
 
   const handleAffiliateClick = async () => {
     await new Promise((resolve) => setTimeout(resolve, 800));
-    window.location.href = "https://glstrck.com/aff_c?offer_id=1153&aff_id=11848";
+    window.location.href = "https://t.afftrackr.com/?es4v=5yuBgl2A4ZJgYhjW9X%2f6xvZK4U9mdapWvQJDRoz7h5U%3d&s1=";
   };
 
   return (
