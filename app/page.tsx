@@ -57,9 +57,9 @@ const RecentWinner = () => {
         >
           <Alert className="w-full max-w-xs bg-white shadow-md text-sm sm:text-base p-4 rounded-lg backdrop-blur text-black">
             <div className="flex items-center gap-3">
-              <DollarSign className="w-6 h-6 text-[#FF9900]" />
+              <DollarSign className="w-6 h-6 text-[#06C167]" />
               <AlertDescription className="font-medium">
-                <span className="text-[#FF9900] font-semibold">{currentName}</span> just received $750!
+                <span className="text-[#06C167] font-semibold">{currentName}</span> just received $750!
               </AlertDescription>
             </div>
           </Alert>
@@ -86,11 +86,11 @@ const MainContent = () => {
 
   const handleAffiliateClick = async () => {
     await new Promise((resolve) => setTimeout(resolve, 800));
-    window.location.href = "https://glstrck.com/aff_c?offer_id=1715&aff_id=11848&source=35%2B";
+    window.location.href = "https://glstrck.com/aff_c?offer_id=1999&aff_id=11848";
   };
 
   return (
-    <div className="min-h-screen bg-[#EAEDED] flex flex-col items-center justify-center font-sans p-4">
+    <div className="min-h-screen bg-[#F6F6F6] flex flex-col items-center justify-center font-sans p-4">
       <RecentWinner />
       
       <motion.div 
@@ -104,10 +104,10 @@ const MainContent = () => {
           whileHover={{ scale: 1.05 }} 
           className="cursor-pointer flex justify-center"
         >
-          <img src="/mazxard.png" alt="Cash Rewards" className="w-4/5 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300" />
+          <img src="/ube.png" alt="Uber Eats Rewards" className="w-4/5 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300" />
         </motion.div>
 
-        <div className="flex items-center justify-center gap-2 bg-[#FF9900] text-white py-3 px-4 rounded-lg shadow-md">
+        <div className="flex items-center justify-center gap-2 bg-[#06C167] text-white py-3 px-4 rounded-lg shadow-md">
           <Clock className="w-5 h-5" />
           <span className="font-bold text-lg">
             {String(timeLeft.minutes).padStart(2, "0")}:
@@ -116,12 +116,12 @@ const MainContent = () => {
         </div>
 
         <motion.div 
-          className="bg-[#F3F3F3] p-5 rounded-xl shadow-sm space-y-3"
+          className="bg-[#F6F6F6] p-5 rounded-xl shadow-sm space-y-3"
           onClick={handleAffiliateClick}
           whileHover={{ scale: 1.01 }}
         >
-          <h2 className="font-bold text-[#232F3E] text-xl flex items-center">
-            Quick Start Guide <ChevronRight className="ml-2 w-5 h-5 text-[#FF9900]" />
+          <h2 className="font-bold text-[#000000] text-xl flex items-center">
+            Quick Start Guide <ChevronRight className="ml-2 w-5 h-5 text-[#06C167]" />
           </h2>
           <ul className="space-y-3">
             {[
@@ -130,12 +130,12 @@ const MainContent = () => {
               { text: "Ensure you are 18 years or older", highlight: "Required" }
             ].map((item, index) => (
               <li key={index} className="flex items-center bg-white p-3 rounded-lg shadow-sm">
-                <div className="h-7 w-7 bg-[#FF9900] rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
+                <div className="h-7 w-7 bg-[#06C167] rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
                   ✓
                 </div>
                 <div>
-                  <div className="font-medium text-[#232F3E]">{item.text}</div>
-                  <div className="text-sm text-[#FF9900] font-medium">{item.highlight}</div>
+                  <div className="font-medium text-[#000000]">{item.text}</div>
+                  <div className="text-sm text-[#06C167] font-medium">{item.highlight}</div>
                 </div>
               </li>
             ))}
@@ -144,7 +144,7 @@ const MainContent = () => {
 
         <motion.button
           onClick={handleAffiliateClick}
-          className="w-full bg-[#FF9900] hover:bg-[#FFB84D] text-white py-4 rounded-xl text-lg font-bold relative overflow-hidden flex items-center justify-center shadow-lg sticky bottom-8"
+          className="w-full bg-[#06C167] hover:bg-[#00A355] text-white py-4 rounded-xl text-lg font-bold relative overflow-hidden flex items-center justify-center shadow-lg sticky bottom-8"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
