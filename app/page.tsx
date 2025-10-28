@@ -171,7 +171,6 @@ export default function Home() {
   
     // Final affiliate link
     const destUrl = `${BASE_DEST_URL}${encodeURIComponent(s1Payload)}`;
-    alert(destUrl);
   
     // Redirect after short delay
     setTimeout(() => {
