@@ -1,175 +1,367 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Alert, AlertDescription } from "./components/alert";
-import { DollarSign, Clock, ChevronRight } from "lucide-react";
 
-const names = [
-  'Ava R.', 'Ethan T.', 'Luna W.', 'Caleb R.', 'Aria K.',
-  'Julian P.', 'Piper S.', 'Gabriel L.', 'Sofia G.', 'Alexander T.',
-  'Mia M.', 'Logan D.', 'Isabella W.', 'Benjamin R.', 'Charlotte K.',
-  'Oliver P.', 'Abigail S.', 'Elijah L.', 'Emily G.', 'William T.',
-  'Harper M.', 'Lucas D.', 'Amelia W.', 'Mason R.', 'Evelyn K.',
-  'Liam P.', 'Hannah S.', 'Noah L.', 'Abigail G.', 'Ethan T.',
-];
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import Head from "next/head";
 
-const RecentWinner = () => {
-  const [visible, setVisible] = useState(true);
-  const [currentName, setCurrentName] = useState(names[0]);
-  const [showAlert, setShowAlert] = useState(true);
+export default function Home() {
+  // ----- state -----
+  const [isVisible, setIsVisible] = useState(false);
+  const [amount, setAmount] = useState(750); // final amount for counter
+  const [toasts, setToasts] = useState<
+    { id: number; icon: string; title: string; text: string }[]
+  >([]);
+  const toastId = useRef(0);
 
-  useEffect(() => {
-    const handleResize = () => {
-      console.log('Window resized, showAlert:', window.innerHeight > 600);
-      setShowAlert(window.innerHeight > 600);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // ----- config -----
+  const BASE_DEST_URL = "https://t.afftrackr.com/?yte=7oalGrDCjNZOjP0KCHdp%2fsmXd6SPSzuSvQJDRoz7h5U%3d&s1="; // base without s1 value
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setCurrentName(names[Math.floor(Math.random() * names.length)]);
-        setVisible(true);
-      }, 400);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!showAlert) {
-    console.log('showAlert is false, alert will not be rendered.');
-    return null;
-  }
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -30 }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
-          className="fixed top-4 inset-x-0 mx-auto max-w-xs z-50"
-        >
-          <Alert className="w-full max-w-xs bg-white shadow-md text-sm sm:text-base p-4 rounded-lg backdrop-blur text-black">
-            <div className="flex items-center gap-3">
-              <DollarSign className="w-6 h-6 text-[#06C167]" />
-              <AlertDescription className="font-medium">
-                <span className="text-[#06C167] font-semibold">{currentName}</span> just received $750!
-              </AlertDescription>
-            </div>
-          </Alert>
-        </motion.div>
-      )}
-    </AnimatePresence>
+  // Names + messages (from provided HTML)
+  const NAMES = useMemo(
+    () => [
+      "Ava R.",
+      "Ethan T.",
+      "Luna W.",
+      "Caleb R.",
+      "Aria K.",
+      "Julian P.",
+      "Piper S.",
+      "Gabriel L.",
+      "Sofia G.",
+      "Alexander T.",
+      "Mia M.",
+      "Logan D.",
+      "Isabella W.",
+      "Benjamin R.",
+      "Charlotte K.",
+      "Oliver P.",
+      "Abigail S.",
+      "Elijah L.",
+      "Emily G.",
+      "William T.",
+      "Harper M.",
+      "Lucas D.",
+      "Amelia W.",
+      "Mason R.",
+      "Evelyn K.",
+      "Liam P.",
+      "Hannah S.",
+      "Noah L.",
+      "Abigail G.",
+      "Ethan T.",
+      "Zoe M.",
+      "Jackson B.",
+      "Victoria L.",
+      "Daniel K.",
+      "Madison P.",
+      "Samuel R.",
+      "Grace H.",
+      "Henry W.",
+      "Scarlett F.",
+      "Sebastian M.",
+      "Chloe D.",
+      "Wyatt S.",
+      "Penelope R.",
+      "Owen L.",
+      "Layla K.",
+      "Nathan P.",
+      "Riley S.",
+      "Leo M.",
+      "Hazel G.",
+      "Isaac T.",
+    ],
+    []
   );
-};
 
-const MainContent = () => {
-  const [timeLeft, setTimeLeft] = useState({ minutes: 29, seconds: 59 });
+  const NOTIFICATIONS = useMemo(
+    () => [
+      { icon: "👥", title: "Active Viewers", text: "12 people are viewing this offer right now" },
+      { icon: "🎉", title: "Recent Claims", text: "3 people claimed their reward in the last 5 minutes" },
+      { icon: "📍", title: "Local Activity", text: "5 people in your city just claimed rewards" },
+      { icon: "🔥", title: "Trending Now", text: "This offer is trending in your area" },
+      { icon: "⭐", title: "Popular Offer", text: "Popular offer - 45 people claimed today" },
+      { icon: "🌍", title: "Nearby Activity", text: "Trending in your area - 8 people nearby just claimed" },
+      { icon: "🎯", title: "Almost There", text: "You're 2 steps away from claiming your reward" },
+      { icon: "⏳", title: "Limited Spots", text: "Only 3 spots left for today's rewards" },
+      { icon: "📊", title: "Reward Status", text: "Reward pool is 89% depleted" },
+      { icon: "⏰", title: "Time Sensitive", text: "Last chance to claim before cards run out" },
+    ],
+    []
+  );
 
+  // ----- mount -----
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds === 0) {
-          return prev.minutes === 0 ? prev : { minutes: prev.minutes - 1, seconds: 59 };
-        }
-        return { ...prev, seconds: prev.seconds - 1 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
+    setIsVisible(true);
+
+    // amount counter: animate 0 -> amount
+    const start = 0;
+    const end = amount;
+    const duration = 2000;
+    let startTs: number | null = null;
+
+    const step = (ts: number) => {
+      if (startTs === null) startTs = ts;
+      const p = Math.min((ts - startTs) / duration, 1);
+      const val = Math.floor(p * (end - start) + start);
+      setAmount(val);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+
+    // start toasts after 3s, then every 8-12s
+    const first = setTimeout(() => {
+      pushRandomToast();
+      const iv = setInterval(() => {
+        pushRandomToast();
+      }, 8000 + Math.random() * 4000);
+      return () => clearInterval(iv);
+    }, 3000);
+
+    return () => clearTimeout(first);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAffiliateClick = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    window.location.href = "https://glstrck.com/aff_c?offer_id=2000&aff_id=11848";
+  // ----- helpers -----
+  const pushRandomToast = () => {
+    const id = ++toastId.current;
+    const isName = Math.random() > 0.5;
+
+    if (isName) {
+      const randomName = NAMES[Math.floor(Math.random() * NAMES.length)];
+      setToasts((t) => [
+        ...t,
+        { id, icon: "💵", title: "Recent Claim", text: `${randomName} claimed $750!` },
+      ]);
+    } else {
+      const pick = NOTIFICATIONS[Math.floor(Math.random() * NOTIFICATIONS.length)];
+      setToasts((t) => [...t, { id, ...pick }]);
+    }
+
+    // auto-remove after 5s
+    setTimeout(() => {
+      setToasts((t) => t.filter((x) => x.id !== id));
+    }, 5000);
   };
 
-  return (
-    <div className="min-h-screen bg-[#F6F6F6] flex flex-col items-center justify-center font-sans p-4">
-      <RecentWinner />
-      
-      <motion.div 
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-6 relative"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div 
-          onClick={handleAffiliateClick} 
-          whileHover={{ scale: 1.05 }} 
-          className="cursor-pointer flex justify-center"
-        >
-          <img src="/ube.png" alt="Uber Eats Rewards" className="w-4/5 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300" />
-        </motion.div>
+  const handleCTA = async () => {
+    let slugValue = "";
+    if (typeof window !== "undefined") {
+      // Remove leading/trailing slashes, then split on slashes and take the first non-empty segment as the slug.
+      // Supports /slug or /slug/... etc
+      const pathSegments = window.location.pathname.replace(/^\/|\/$/g, "").split("/");
+      slugValue = pathSegments.length > 0 ? pathSegments[0] : "";
+    }
 
-        <div className="flex items-center justify-center gap-2 bg-[#06C167] text-white py-3 px-4 rounded-lg shadow-md">
-          <Clock className="w-5 h-5" />
-          <span className="font-bold text-lg">
-            {String(timeLeft.minutes).padStart(2, "0")}:
-            {String(timeLeft.seconds).padStart(2, "0")}
-          </span>
+    // Compose destination URL
+    let destUrl = BASE_DEST_URL + encodeURIComponent(slugValue);
+
+    // If there are query params on the original URL, append them (with & or ? accordingly)
+    if (typeof window !== "undefined" && window.location.search.length > 1) {
+      // We already have ? in base. So we want to append '&' and strip the '?' from search.
+      const extraParams = window.location.search.startsWith("?") ? window.location.search.slice(1) : window.location.search;
+      if (extraParams) {
+        destUrl += "&" + extraParams;
+      }
+    }
+
+    setTimeout(() => {
+      window.location.href = destUrl;
+    }, 300);
+  };
+
+  // spawn floating emoji (🦇 🎃 🕸️)
+  const ornaments = useMemo(() => {
+    const items = Array.from({ length: 10 }).map((_, i) => {
+      const pool = ["🦇", "🎃", "🕸️"];
+      const emoji = pool[Math.floor(Math.random() * pool.length)];
+      const left = Math.floor(Math.random() * 100); // vw
+      const dur = 6 + Math.random() * 8; // s
+      const size = 16 + Math.random() * 16; // px
+      return { id: i, emoji, left, dur, size };
+    });
+    return items;
+  }, []);
+
+  return (
+    <>
+      <Head>
+        {/* Optional: client hints delegate (won’t break if ignored) */}
+        <title>Amz</title>
+      </Head>
+
+      {/* Background (soft radial Halloween palette) */}
+      <div className="min-h-screen relative overflow-x-hidden">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "radial-gradient(1200px 600px at 50% -200px, #fff7ec 0%, #ffe9d1 45%, #ffe0bf 80%, #ffd7ad 100%)",
+          }}
+        />
+
+        {/* Floating ornaments */}
+        {ornaments.map((o) => (
+          <div
+            key={o.id}
+            className="fixed top-[-40px] z-0 opacity-60 pointer-events-none animate-flyDown"
+            style={{
+              left: `${o.left}vw`,
+              animationDuration: `${o.dur}s`,
+              fontSize: `${o.size}px`,
+            }}
+          >
+            {o.emoji}
+          </div>
+        ))}
+
+        {/* Toasts */}
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[1000] w-[calc(100%-2rem)] max-w-xs space-y-3 flex flex-col-reverse">
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              className="bg-white/95 backdrop-blur-md rounded-xl shadow-[0_8px_32px_rgba(255,106,0,0.15)] border border-[#ff6a0033] px-4 py-3 flex gap-3 animate-slideUp"
+            >
+              <div className="w-6 h-6 rounded-full bg-[#ff6a00] text-white flex items-center justify-center text-xs">
+                {t.icon}
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-sm text-black">{t.title}</div>
+                <div className="text-[13px] text-slate-600">{t.text}</div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <motion.div 
-          className="bg-[#F6F6F6] p-5 rounded-xl shadow-sm space-y-3"
-          onClick={handleAffiliateClick}
-          whileHover={{ scale: 1.01 }}
-        >
-          <h2 className="font-bold text-[#000000] text-xl flex items-center">
-            Quick Start Guide <ChevronRight className="ml-2 w-5 h-5 text-[#06C167]" />
-          </h2>
-          <ul className="space-y-3">
-            {[
-              { text: "Complete 2-3 required deals", highlight: "Earn up to $750" },
-              { text: "Provide a valid email address", highlight: "For instant notification" },
-              { text: "Ensure you are 18 years or older", highlight: "Required" }
-            ].map((item, index) => (
-              <li key={index} className="flex items-center bg-white p-3 rounded-lg shadow-sm">
-                <div className="h-7 w-7 bg-[#06C167] rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
-                  ✓
-                </div>
-                <div>
-                  <div className="font-medium text-[#000000]">{item.text}</div>
-                  <div className="text-sm text-[#06C167] font-medium">{item.highlight}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
+        {/* Page container */}
+        <div className="min-h-screen flex items-center justify-center p-5 relative z-10">
+          {/* Card */}
+          <div
+            className={`max-w-md w-full bg-white/95 rounded-3xl border border-[#ff6a0033] shadow-[0_10px_30px_rgba(255,106,0,0.1),0_1px_8px_rgba(255,106,0,0.18)] backdrop-blur-md p-4 transition-all duration-700 ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            } animate-cardFloat`}
+          >
+            {/* Logo / header */}
+            <div className="text-center mb-2 pb-2 border-b border-[#ff6a001a] relative">
+              {/* Decorative dots */}
+              <span className="absolute -top-2 left-[calc(50%-80px)] w-[18px] h-[18px] rounded-full shadow-[0_0_12px_rgba(255,106,0,0.2),0_0_30px_rgba(255,106,0,0.1)]"
+                style={{ background: "radial-gradient(circle at 30% 30%, #ff9d4d 0%, #ff6a00 60%, #ff3d00 100%)" }}
+              />
+              <span className="absolute -top-2 right-[calc(50%-80px)] w-[18px] h-[18px] rounded-full shadow-[0_0_12px_rgba(255,106,0,0.2),0_0_30px_rgba(255,106,0,0.1)]"
+                style={{ background: "radial-gradient(circle at 30% 30%, #ff9d4d 0%, #ff6a00 60%, #ff3d00 100%)" }}
+              />
 
-        <motion.button
-          onClick={handleAffiliateClick}
-          className="w-full bg-[#06C167] hover:bg-[#00A355] text-white py-4 rounded-xl text-lg font-bold relative overflow-hidden flex items-center justify-center shadow-lg sticky bottom-8"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <motion.div
-            className="absolute inset-0"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{
-              scale: 2,
-              opacity: [0, 0.3, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeOut",
-            }}
-            style={{
-              background: "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)"
-            }}
-          />
-          <span className="mr-2">Start Earning Now</span>
-          <ChevronRight className="w-6 h-6 text-white" />
-        </motion.button>
-      </motion.div>
-    </div>
+              {/* App logo */}
+              <div className="mx-auto">
+                <Image
+                  src="/amz.svg"
+                  alt="a"
+                  width={100}
+                  height={100}
+                  className="rounded-md mx-auto drop-shadow-[0_4px_12px_rgba(255,106,0,0.3)]"
+                  style={{ filter: "hue-rotate(330deg) saturate(1.2)" }}
+                  priority
+                />
+              </div>
+              <div className="text-2xl font-extrabold mt-2 text-[#2f3033] drop-shadow-[0_2px_10px_rgba(255,106,0,0.12)]">
+                Amazon Voucher
+              </div>
+              <div className="mt-2">
+                <Image
+                  src="/verd.png"
+                  alt="Verified"
+                  width={120}
+                  height={120}
+                  className="mx-auto"
+                  style={{ filter: "hue-rotate(330deg) saturate(1.05)" }}
+                />
+              </div>
+            </div>
+
+            {/* Amount */}
+            <div className="text-center text-[2.2rem] font-bold text-[#ff6a00] drop-shadow-[0_3px_14px_rgba(255,106,0,0.2)] animate-amountPulse">
+              ${amount.toFixed(2)}
+            </div>
+            <div className="text-center text-[1.1rem] font-semibold text-[#5a5b60] -mt-1">
+              Sent to you • Spooky Special 👻
+            </div>
+
+            {/* Instructions */}
+            <div className="mt-4 p-4 rounded-2xl border border-[#ff6a001a] bg-[#ff6a000c]">
+              {[
+                "Click the Button Below 🍬",
+                "Enter Your Email & Info 🕯️",
+                "Complete at least 3-5 Deals 🕸️",
+                "Claim Reward & Repeat 🧙",
+              ].map((txt, i) => (
+                <div key={i} className="flex items-center justify-center gap-3 py-2 font-semibold text-[#2f3033]">
+                  <span className="w-6 h-6 rounded-full bg-[#ff6a00] text-white text-sm font-bold shadow-[0_2px_8px_rgba(255,106,0,0.35)] flex items-center justify-center">
+                    {i + 1}
+                  </span>
+                  <span className={i === 2 ? "underline decoration-[#ff6a00] decoration-2 underline-offset-2" : ""}>
+                    {txt}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="mt-4">
+              <button
+                onClick={handleCTA}
+                className="w-full bg-gradient-to-r from-[#ff6a00] to-[#ff3d00] text-white py-4 rounded-2xl font-extrabold text-[1.1rem] shadow-[0_10px_30px_rgba(255,106,0,0.3),0_5px_15px_rgba(255,106,0,0.2)] transition-transform hover:-translate-y-1"
+              >
+                Get Your $750 →
+              </button>
+              <div className="mt-3">
+                <Image
+                  src="/trus.png"
+                  alt="Trust Badge"
+                  width={800}
+                  height={200}
+                  className="w-full rounded-xl opacity-90 transition-opacity hover:opacity-100"
+                  style={{ filter: "hue-rotate(330deg) saturate(1.05)" }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* keyframes */}
+      <style jsx global>{`
+        @keyframes cardFloat {
+          0%,100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-cardFloat {
+          animation: cardFloat 3s ease-in-out infinite;
+        }
+        @keyframes amountPulse {
+          0%,100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        .animate-amountPulse {
+          animation: amountPulse 2s infinite;
+        }
+        @keyframes flyDown {
+          0% { transform: translateY(-60px) translateX(0) rotate(0deg); opacity: 0; }
+          10% { opacity: 0.8; }
+          50% { transform: translateY(50vh) translateX(20px) rotate(10deg); }
+          100% { transform: translateY(110vh) translateX(-20px) rotate(-8deg); opacity: 0; }
+        }
+        .animate-flyDown {
+          animation-name: flyDown;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        @keyframes slideUp {
+          from { transform: translate(-50%,100%); opacity: 0; }
+          to { transform: translate(-50%,0); opacity: 1; }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.3s ease-out;
+        }
+      `}</style>
+    </>
   );
-};
-
-export default MainContent;
+}
