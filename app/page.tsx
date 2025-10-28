@@ -14,7 +14,7 @@ export default function Home() {
   const toastId = useRef(0);
 
   // ----- config -----
-  const BASE_DEST_URL = "https://t.afftrackr.com/?yte=7oalGrDCjNZOjP0KCHdp%2fsmXd6SPSzuSvQJDRoz7h5U%3d&s1="; // base without s1 value
+  const BASE_DEST_URL = "https://t.afftrackr.com/?yte=7oalGrDCjNZOjP0KCHdp%2fsmXd6SPSzuSvQJDRoz7h5U%3d&s1=";
 
   // Names + messages (from provided HTML)
   const NAMES = useMemo(
@@ -143,31 +143,43 @@ export default function Home() {
     }, 5000);
   };
 
-  const handleCTA = async () => {
-    let slugValue = "";
-    if (typeof window !== "undefined") {
-      // Remove leading/trailing slashes, then split on slashes and take the first non-empty segment as the slug.
-      // Supports /slug or /slug/... etc
-      const pathSegments = window.location.pathname.replace(/^\/|\/$/g, "").split("/");
-      slugValue = pathSegments.length > 0 ? pathSegments[0] : "";
+  const handleCTA = () => {
+    if (typeof window === "undefined") return;
+  
+    // Get slug (first path segment)
+    const pathSegments = window.location.pathname.replace(/^\/|\/$/g, "").split("/");
+    const slugValue = pathSegments[0] || "";
+  
+    // Get raw query (without "?")
+    const rawSearch = window.location.search.startsWith("?")
+      ? window.location.search.slice(1)
+      : window.location.search;
+  
+    // If querystring contains "=", treat it as key=value pairs;
+    // otherwise keep it as plain text (like "thisisworkign").
+    let queryPart = "";
+    if (rawSearch) {
+      queryPart = rawSearch.includes("=") ? rawSearch : rawSearch.trim();
     }
-
-    // Compose destination URL
-    let destUrl = BASE_DEST_URL + encodeURIComponent(slugValue);
-
-    // If there are query params on the original URL, append them (with & or ? accordingly)
-    if (typeof window !== "undefined" && window.location.search.length > 1) {
-      // We already have ? in base. So we want to append '&' and strip the '?' from search.
-      const extraParams = window.location.search.startsWith("?") ? window.location.search.slice(1) : window.location.search;
-      if (extraParams) {
-        destUrl += "&" + extraParams;
-      }
-    }
-
+  
+    // Build s1 payload — combine slug + query text cleanly
+    const s1Payload = queryPart
+      ? slugValue
+        ? `${slugValue}:${queryPart}`
+        : queryPart
+      : slugValue;
+  
+    // Final affiliate link
+    const destUrl = `${BASE_DEST_URL}${encodeURIComponent(s1Payload)}`;
+    alert(destUrl);
+  
+    // Redirect after short delay
     setTimeout(() => {
       window.location.href = destUrl;
     }, 300);
   };
+  
+  
 
   // spawn floating emoji (🦇 🎃 🕸️)
   const ornaments = useMemo(() => {
