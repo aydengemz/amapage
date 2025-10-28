@@ -274,7 +274,7 @@ export default function Home() {
                 />
               </div>
               <div className="text-2xl font-extrabold mt-2 text-[#2f3033] drop-shadow-[0_2px_10px_rgba(255,106,0,0.12)]">
-                Amazon Voucher
+                Amazon Codes
               </div>
               <div className="mt-2">
                 <Image
